@@ -5,7 +5,13 @@ function checkForDuplicate(tab)
 	const isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
 	if (isDuplicate && !tab.url.includes("://newtab")) {
 		chrome.tabs.remove(tab.id, function () {
-			console.log("Closed duplicate tab:", tab.id);
+			console.log("Closed duplicate tab:", tab.id, tab);
+			const originalTab = tabArr.find(t => t.url === tab.url && t !== tab);
+			if (originalTab) {
+				chrome.tabs.update(originalTab.id, { active: true }, function(updatedTab) {
+					console.log("Setting Active Tab:", updatedTab.id, updatedTab);
+				});
+			}
 		});
 	}
 }
@@ -38,13 +44,12 @@ chrome.tabs.onCreated.addListener(function (newTab) {
 
 // UPDATE TAB LISTENER
 chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, updatedTab) {
-	if (changeInfo.url) {
-		const tab = tabArr.findIndex(tab => tab.id === tabID);
-		if (tab !== -1)
-		{
-			tabArr[tab] = updatedTab;
-			checkForDuplicate(tabArr[tab]);
-		}
+	console.log("Changeinfo:", changeInfo);
+	const tab = tabArr.findIndex(tab => tab.id === tabID);
+	if (changeInfo.status === "complete" && tab !== -1)
+	{
+		tabArr[tab] = updatedTab;
+		checkForDuplicate(tabArr[tab]);
 	}
 });
 

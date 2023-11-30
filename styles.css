@@ -1,0 +1,17 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	max-width: 600px;
+	max-height: 400px;
+	margin: auto;
+}
+
+div {
+	padding: 20px;
+}
