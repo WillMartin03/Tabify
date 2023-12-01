@@ -3,7 +3,7 @@ var tabArr = [];
 function checkForDuplicate(tab)
 {
 	const isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
-	if (isDuplicate && !tab.url.includes("://newtab")) {
+	if (isDuplicate && !tab.url.includes("://newtab") && !tab.url.includes("search?")) {
 		chrome.tabs.remove(tab.id, function () {
 			console.log("Closed duplicate tab:", tab.id, tab);
 			const originalTab = tabArr.find(t => t.url === tab.url && t !== tab);
@@ -23,7 +23,9 @@ chrome.runtime.onInstalled.addListener((reason) => {
 			url: "popup.html"
 		});
 	}
+});
 
+chrome.runtime.onStartup.addListener(() => {
 	// Add existing tabs to tabArr
 	chrome.tabs.query({}, function (existingTabs) {
 		existingTabs.forEach(function (tab) {
@@ -35,6 +37,8 @@ chrome.runtime.onInstalled.addListener((reason) => {
 	tabArr.forEach(function (tab) {
 		checkForDuplicate(tab);
 	});
+
+	console.log("Extension Loaded.\ntabArr: ", tabArr);
 });
 
 // CREATE TAB LISTENER
@@ -44,7 +48,7 @@ chrome.tabs.onCreated.addListener(function (newTab) {
 
 // UPDATE TAB LISTENER
 chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, updatedTab) {
-	console.log("Changeinfo:", changeInfo);
+	console.log("changeInfo:", changeInfo);
 	const tab = tabArr.findIndex(tab => tab.id === tabID);
 	if (changeInfo.status === "complete" && tab !== -1)
 	{
