@@ -3,17 +3,25 @@
 
 <head>
 	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tabtivity</title>
 	<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-	<div>
+	<div class="popup-container">
 		<h1>Tabtivity</h1>
-		<label for="stripCheckbox">Strip "?" from URLs for duplication checking</label>
-		<input type="checkbox" id="stripCheckbox" />
+
+		<div class="checkbox-container">
+			<label for="extensionEnableCheckbox">Extension Enabled</label>
+			<input type="checkbox" id="extensionEnableCheckbox" class="toggle-checkbox">
+		</div>
+
+		<div class="checkbox-container">
+			<label for="stripCheckbox">Trim "?" from URLs before checking</label>
+			<input type="checkbox" id="stripCheckbox" class="toggle-checkbox">
+		</div>
+
 	</div>
 	<script src="popup.js"></script>
 </body>

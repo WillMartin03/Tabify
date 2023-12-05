@@ -16,6 +16,44 @@ function checkForDuplicate(tab)
 	}
 }
 
+function getSetting(setting, callback) {
+	chrome.storage.sync.get(setting, function(result) {
+		// Error handling
+		if (chrome.runtime.lastError) {
+			console.error(chrome.runtime.lastError);
+			callback(false);
+		} else {
+			// Check if the setting exists in the storage
+			if (setting in result) {
+				// If the setting is found, return its boolean value
+				callback(!!result[setting]);
+			} else {
+				// If the setting is not found, return false
+				callback(false);
+			}
+		}
+	});
+}
+
+// Function to check setting, either from cache or by fetching from storage
+function checkSetting(setting, callback) {
+	// Check if the setting is already cached
+	if (checkSetting.cache && setting in checkSetting.cache) {
+		callback(checkSetting.cache[setting]);
+	} else {
+		// If not cached, fetch from storage using getSetting
+		getSetting(setting, function(value) {
+
+			// Cache the value
+			checkSetting.cache = checkSetting.cache || {};
+			checkSetting.cache[setting] = value;
+
+			// Return the value
+			callback(value);
+		});
+	}
+}
+
 chrome.runtime.onInstalled.addListener((reason) => {
 	// Create welcome page
 	if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
@@ -48,13 +86,23 @@ chrome.tabs.onCreated.addListener(function (newTab) {
 
 // UPDATE TAB LISTENER
 chrome.tabs.onUpdated.addListener(function (tabID, changeInfo, updatedTab) {
-	console.log("changeInfo:", changeInfo);
-	const tab = tabArr.findIndex(tab => tab.id === tabID);
-	if (changeInfo.status === "complete" && tab !== -1)
-	{
-		tabArr[tab] = updatedTab;
-		checkForDuplicate(tabArr[tab]);
-	}
+	getSetting('extensionEnabled', function(isEnabled) {
+		console.log('Extension enabled ->', isEnabled);
+
+		// Ignore favIcon changes
+		if (changeInfo.favIconUrl || changeInfo.title)
+			return;
+
+		console.log("changeInfo:", changeInfo);
+
+		const tab = tabArr.findIndex(tab => tab.id === tabID);
+		if (changeInfo.status === "complete" && tab !== -1)
+		{
+			tabArr[tab] = updatedTab;
+			if (isEnabled)
+				checkForDuplicate(tabArr[tab]);
+		}
+	});
 });
 
 // REMOVE TAB LISTENER

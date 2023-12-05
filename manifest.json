@@ -14,10 +14,10 @@
 		"default_title": "Tabtivity"
 	},
 	"permissions": [
+		"storage",
 		"tabs",
 		"tabGroups",
-		"activeTab",
-		"storage"
+		"activeTab"
 	],
 	"host_permissions": [
 		"http://*/*",
