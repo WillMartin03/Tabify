@@ -1,6 +1,6 @@
 {
 	"manifest_version": 3,
-	"name": "Tabtivity",
+	"name": "Tabify",
 	"description": "Checks site URL's of websites to make sure you don't open the same link twice. When the same link is opened, close the duplicate tab and select the old tab instead.",
 	"author": "William Martin",
 	"version": "1.1.1",
@@ -11,7 +11,7 @@
 	},
 	"action": {
 		"default_popup": "popup.html",
-		"default_title": "Tabtivity"
+		"default_title": "Tabify"
 	},
 	"permissions": [
 		"storage",

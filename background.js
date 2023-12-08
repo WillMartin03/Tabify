@@ -166,6 +166,6 @@ chrome.tabs.onRemoved.addListener(function (tabID) {
 		}
 	}
 	catch (error) {
-		console.log("[Tabtivity] ERROR:", error);
+		console.log("[Tabify] ERROR:", error);
 	}
 });
