@@ -3,7 +3,7 @@
 	"name": "Tabify",
 	"description": "Checks site URL's of websites to make sure you don't open the same link twice. When the same link is opened, close the duplicate tab and select the old tab instead.",
 	"author": "William Martin",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"icons": {
 		"16": "/images/icon16.png",
 		"48": "/images/icon48.png",
@@ -13,16 +13,8 @@
 		"default_popup": "popup.html",
 		"default_title": "Tabify"
 	},
-	"permissions": [
-		"storage",
-		"tabs",
-		"tabGroups",
-		"activeTab"
-	],
-	"host_permissions": [
-		"http://*/*",
-		"https://*/*"
-	],
+	"permissions": ["storage", "tabs", "tabGroups", "activeTab"],
+	"host_permissions": ["http://*/*", "https://*/*"],
 	"background": {
 		"service_worker": "background.js"
 	}

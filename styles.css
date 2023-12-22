@@ -80,3 +80,32 @@ label {
 .toggle-checkbox:checked::before {
 	transform: translateX(20px);
 }
+
+.console {
+	display: inline;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 45%;
+	background-color: #343434;
+	color: #fff;
+	padding: 20px;
+	box-sizing: border-box;
+	border-left: 2px solid rgb(24, 24, 24);
+	font-size: 12px;
+	overflow-wrap: break-word;
+	overflow-y: auto;
+}
+
+.console::before {
+	text-align: center;
+	content: "CONSOLE";
+	font-size: 20px;
+	color: cyan;
+	display: block;
+	margin-bottom: 10px;
+	position: sticky;
+	top: -25px;
+	background-color: #343434;
+}
