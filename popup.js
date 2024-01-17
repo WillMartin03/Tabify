@@ -14,63 +14,86 @@ function checkAllDuplicates() {
 	});
 }
 
-function tabifyConsoleLog(message, ...args) {
-	const con = document.getElementById("console");
-	con.innerText += message + " " + args.join(" ") + "\n";
-	con.scrollTop = con.scrollHeight;
-}
-
 document.addEventListener("DOMContentLoaded", function () {
+	const extensionEnableCheckbox = document.getElementById("extensionEnableCheckbox");
+	const stripCheckbox = document.getElementById("stripCheckbox");
+	const anchorsCheckbox = document.getElementById("anchorsCheckbox");
+	const switchToOriginalTabCheckbox = document.getElementById("switchToOriginalTabCheckbox");
+	const ignoreWebsiteButton = document.getElementById("ignoreWebsiteButton");
+	const clearWebsitesButton = document.getElementById("clearWebsitesButton");
+
 	// Load the saved settings when the popup is opened
-	chrome.storage.sync.get(["ignoreQueryStrings"], function (result) {
-		if (result.ignoreQueryStrings !== undefined) {
-			document.getElementById("stripCheckbox").checked = result.ignoreQueryStrings;
-		}
-	});
 	chrome.storage.sync.get(["extensionEnabled"], function (result) {
 		if (result.extensionEnabled !== undefined) {
-			document.getElementById("extensionEnableCheckbox").checked = result.extensionEnabled;
+			extensionEnableCheckbox.checked = result.extensionEnabled;
+		}
+	});
+	chrome.storage.sync.get(["ignoreQueryStrings"], function (result) {
+		if (result.ignoreQueryStrings !== undefined) {
+			stripCheckbox.checked = result.ignoreQueryStrings;
+		}
+	});
+	chrome.storage.sync.get(["anchorsCheckbox"], function (result) {
+		if (result.anchorsCheckbox !== undefined) {
+			anchorsCheckbox.checked = result.anchorsCheckbox;
+		}
+	});
+	chrome.storage.sync.get(["switchToOriginalTab"], function (result) {
+		if (result.switchToOriginalTab !== undefined) {
+			switchToOriginalTabCheckbox.checked = result.switchToOriginalTab;
 		}
 	});
 	chrome.storage.sync.get(["ignoreWebsite"], function (result) {
 		if (result.ignoreWebsite !== undefined) {
-			document.getElementById("ignoreWebsiteButton").enabled = result.ignoreWebsite;
+			ignoreWebsiteButton.enabled = result.ignoreWebsite;
 		}
 	});
 	chrome.storage.sync.get(["ignoredWebsites"], function (result) {
-		const button = document.getElementById("ignoreWebsiteButton");
-
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			const currentUrl = tabs[0].url;
 			const ignoredWebsites = result.ignoredWebsites || [];
 			const index = ignoredWebsites.indexOf(currentUrl);
 
 			if (index === -1) {
-				button.innerText = "Ignore Website";
+				ignoreWebsiteButton.innerText = "Exclude Website";
 			} else {
-				button.innerText = "Unignore Website";
+				ignoreWebsiteButton.innerText = "Include Website";
 			}
 		});
 	});
 
 	// Add `change` event handlers
-	document.getElementById("stripCheckbox").addEventListener("change", function () {
-		const newSettingValue = this.checked;
-		chrome.storage.sync.set({ "ignoreQueryStrings": newSettingValue }, function () {
-			updateCache("ignoreQueryStrings", newSettingValue);
-			tabifyConsoleLog("[SETTING]: ignoreQueryStrings ->", newSettingValue);
-		});
-	});
-	document.getElementById("extensionEnableCheckbox").addEventListener("change", function () {
-		const newSettingValue = this.checked;
-		chrome.storage.sync.set({ "extensionEnabled": newSettingValue }, function () {
-			updateCache("extensionEnabled", newSettingValue);
-			tabifyConsoleLog("[SETTING]: extensionEnabled ->", newSettingValue);
-			if (newSettingValue === true)
+	extensionEnableCheckbox.addEventListener("change", function () {
+		const newValue = this.checked;
+		chrome.storage.sync.set({ "extensionEnabled": newValue }, function () {
+			updateCache("extensionEnabled", newValue);
+			console.log("[SETTING]: extensionEnabled ->", newValue);
+			if (newValue === true)
 				checkAllDuplicates();
 		});
 	});
-	document.getElementById("ignoreWebsiteButton").addEventListener("click", function () {
+	stripCheckbox.addEventListener("change", function () {
+		const newValue = this.checked;
+		chrome.storage.sync.set({ "ignoreQueryStrings": newValue }, function () {
+			updateCache("ignoreQueryStrings", newValue);
+			console.log("[SETTING]: ignoreQueryStrings ->", newValue);
+		});
+	});
+	anchorsCheckbox.addEventListener("change", function () {
+		const newValue = this.checked;
+		chrome.storage.sync.set({ "anchorsCheckbox": newValue }, function () {
+			updateCache("anchorsCheckbox", newValue);
+			console.log("[SETTING]: anchorsCheckbox ->", newValue);
+		});
+	});
+	switchToOriginalTabCheckbox.addEventListener("change", function () {
+		const newValue = this.checked;
+		chrome.storage.sync.set({ "switchToOriginalTab": newValue }, function () {
+			updateCache("switchToOriginalTab", newValue);
+			console.log("[SETTING]: switchToOriginalTab ->", newValue);
+		});
+	});
+	ignoreWebsiteButton.addEventListener("click", function () {
 		const button = this;
 		chrome.storage.sync.get(["ignoredWebsites"], function (result) {
 			let ignoredWebsites = result.ignoredWebsites || [];
@@ -79,16 +102,29 @@ document.addEventListener("DOMContentLoaded", function () {
 				const index = ignoredWebsites.indexOf(currentUrl);
 				if (index === -1) {
 					ignoredWebsites.push(currentUrl);
-					button.innerText = "Unignore Website";
+					button.innerText = "Include Website";
 				} else {
 					ignoredWebsites.splice(index, 1);
-					button.innerText = "Ignore Website";
+					button.innerText = "Exclude Website";
 				}
 				chrome.storage.sync.set({ "ignoredWebsites": ignoredWebsites }, function () {
 					updateCache("ignoreWebsite", ignoredWebsites);
-					tabifyConsoleLog("ignoredWebsites ->\n", ignoredWebsites.join(",\n"));
+					console.log("ignoredWebsites ->\n", ignoredWebsites.join(",\n"));
 				});
 			});
 		});
+	});
+	clearWebsitesButton.addEventListener("click", function () {
+		chrome.storage.sync.set({ "ignoredWebsites": [] }, function () {
+			updateCache("ignoreWebsite", []);
+			console.log("ignoredWebsites ->\n", []);
+		});
+		ignoreWebsiteButton.innerText = "Exclude Website";
+		clearWebsitesButton.innerText = "Cleared!";
+		clearWebsitesButton.style.backgroundColor = "#ed3f54";
+		setTimeout(function () {
+			clearWebsitesButton.innerText = "Clear Excluded Websites";
+			clearWebsitesButton.style.backgroundColor = "";
+		}, 2000);
 	});
 });

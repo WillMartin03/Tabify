@@ -1,10 +1,32 @@
 var tabArr = [];
 
+// Function to check setting, either from cache or by fetching from storage
+function checkSetting(setting, callback) {
+	console.log(setting);
+	// Initialize the cache
+	checkSetting.cache = checkSetting.cache || {};
+
+	// Check if the setting is already cached
+	if (setting in checkSetting.cache) {
+		callback(checkSetting.cache[setting]);
+	} else {
+		// If not cached, fetch from storage using getSetting
+		getSetting(setting, function (value) {
+
+			// Cache the value
+			checkSetting.cache[setting] = value;
+
+			// Return the value
+			callback(value);
+		});
+	}
+}
+
 // LISTENER FOR COMMUNICATION WITH `popup.js`
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	if (request.action === 'updateCache') {
 		// Update setting within cache
-		checkSetting.cache[request.setting] = request.value;
+		checkSetting.cache[request?.setting] = request?.value;
 	} else if (request.action === 'checkAllDuplicates') {
 		tabArr.forEach(function (tab) {
 			// Check for duplicate tabs in tabArr
@@ -27,6 +49,13 @@ function initializeExtension() {
 		checkForDuplicate(tab);
 	});
 
+	// Set initial cache values
+	checkSetting("extensionEnabled", function () { });
+	checkSetting("ignoreQueryStrings", function () { });
+	checkSetting("ignoreAnchorTags", function () { });
+	checkSetting("ignoredWebsites", function () { });
+	checkSetting("switchToOriginalTab", function () { });
+
 	console.log("Extension Loaded.\ntabArr: ", tabArr);
 
 	return;
@@ -37,36 +66,51 @@ function checkForDuplicate(tab, preventSwitch = false) {
 
 	// Check to ensure the site is not ignored
 	checkSetting('ignoredWebsites', function (ignoredWebsites) {
-		if (ignoredWebsites.includes(tab.url))
+		if (Array.isArray(ignoredWebsites) && ignoredWebsites.includes(tab.url)) {
+			console.log(tab, "is ignored.");
 			return;
+		}
 	});
 
 	/*
 		Extensions can't remove NTP (New Tab Page) tabs.
-		Unchecked runtime.lastError: Cannot remove NTP tab.
+		"Unchecked runtime.lastError: Cannot remove NTP tab."
 	*/
-	if (tab.url.includes("://newtab"))
+	if (tab.url.includes("://newtab")) {
+		console.log(tab, "Cannot remove NTP tab.");
 		return;
+	}
 
 	// For bing, we have to ignore pages that include "search?" because of how it handles search queries
 	// This is because when you click on a search result with bing, it opens a new tab with the same url, then processes it.
 	// This causes the extension to close the tab, which is not what we want.
-	if (tab.url.includes("search?") && tab.url.includes("bing.com"))
+	if (tab.url.includes("search?") && tab.url.includes("bing.com")) {
+		console.log(tab, "Ignoring bing search tab.");
 		return;
+	}
 
 	/*
 		boolean var isDuplicate = if any tab url matches current tab url
 		boolean const pendingDuplicate = if any tab url matches current tab pendingUrl
 	*/
-	var isDuplicate = false;
-	// If setting "ignoreQueryStrings" is true, isDuplicate checks any url that matches the current url without query strings
-	checkSetting('ignoreQueryStrings', function (ignoreQueryStrings) {
-		// set isDuplicate to result of check for duplicate tabs without considering query strings if ignoreQueryStrings is true,
-		// otherwise check for exact match including query strings
-		isDuplicate = ignoreQueryStrings
-			? tabArr.some(t => t.url.split("?")[0] === tab.url.split("?")[0] && t !== tab)
-			: tabArr.some(t => t.url === tab.url && t !== tab);
+	// Start by checking for exact matches
+	var isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
+
+	// If setting "ignoreQueryStrings" is true, isDuplicate checks any url that matches the current url without considering query strings
+	checkSetting("ignoreQueryStrings", function (ignoreQueryStrings) {
+		if (ignoreQueryStrings)
+			isDuplicate = tabArr.some(t => t.url.split("?")[0] === tab.url.split("?")[0] && t !== tab);
 	});
+
+	// If a duplicate is already found, we don't need to check this setting.
+	if (!isDuplicate) {
+		checkSetting("ignoreAnchorTags", function (ignoreAnchorTags) {
+			if (ignoreAnchorTags)
+				isDuplicate = tabArr.some(t => t.url.split("#")[0] === tab.url.split("#")[0] && t !== tab);
+		});
+	}
+
+	// pendingDuplicate checks any url that matches the currently pending url
 	const pendingDuplicate = tab.pendingUrl !== undefined ? tabArr.some(t => t.url === tab.pendingUrl && t !== tab) : false;
 
 	if (isDuplicate || pendingDuplicate) {
@@ -75,11 +119,13 @@ function checkForDuplicate(tab, preventSwitch = false) {
 			if (preventSwitch)
 				return;
 			const originalTab = tabArr.find(t => t.url === tab.url && t !== tab);
-			if (originalTab) {
-				chrome.tabs.update(originalTab.id, { active: true }, function (updatedTab) {
-					console.log("Setting Active Tab:", updatedTab.id, updatedTab);
-				});
-			}
+			checkSetting("switchToOriginalTab", function (switchToOriginalTab) {
+				if (switchToOriginalTab && originalTab) {
+					chrome.tabs.update(originalTab.id, { active: true }, function (updatedTab) {
+						console.log("Setting Active Tab:", updatedTab.id, updatedTab);
+					});
+				}
+			});
 		});
 	}
 }
@@ -102,32 +148,11 @@ function getSetting(setting, callback) {
 	});
 }
 
-// Function to check setting, either from cache or by fetching from storage
-function checkSetting(setting, callback) {
-	// Initialize the cache
-	checkSetting.cache = checkSetting.cache || {};
-
-	// Check if the setting is already cached
-	if (setting in checkSetting.cache) {
-		callback(checkSetting.cache[setting]);
-	} else {
-		// If not cached, fetch from storage using getSetting
-		getSetting(setting, function (value) {
-
-			// Cache the value
-			checkSetting.cache[setting] = value;
-
-			// Return the value
-			callback(value);
-		});
-	}
-}
-
 chrome.runtime.onInstalled.addListener((reason) => {
 	// Create welcome page
 	if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
 		chrome.tabs.create({
-			url: "popup.html"
+			url: "welcome.html"
 		});
 	}
 	initializeExtension();
@@ -176,6 +201,6 @@ chrome.tabs.onRemoved.addListener(function (tabID) {
 		}
 	}
 	catch (error) {
-		console.log("[Tabify] ERROR:", error);
+		console.log("ERROR:", error);
 	}
 });

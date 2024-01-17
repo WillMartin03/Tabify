@@ -5,30 +5,38 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tabify</title>
-	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="popup.css">
 </head>
 
-<body>
-	<div class="popup-container">
-		<h1>Tabify</h1>
+<body class="popup-container" style="text-align: center;">
 
-		<div class="checkbox-container">
-			<label for="extensionEnableCheckbox">Extension Enabled</label>
-			<input type="checkbox" id="extensionEnableCheckbox" class="toggle-checkbox">
-		</div>
+	<h1><u><span style="font-family: Pacifico, cursive, monospace;">Tabify</span></u></h1>
 
-		<div class="checkbox-container">
-			<label for="stripCheckbox">Ignore Query Parameters</label>
-			<input type="checkbox" id="stripCheckbox" class="toggle-checkbox">
-		</div>
-
-		<div class="checkbox-container">
-			<button id="ignoreWebsiteButton">Ignore Website</button>
-		</div>
-
+	<div class="checkbox-container">
+		<label>Extension Enabled:</label>
+		<input type="checkbox" id="extensionEnableCheckbox" class="toggle-checkbox">
 	</div>
 
-	<div class="console" id="console"></div>
+	<div class="checkbox-container">
+		<label>Ignore Query Parameters:</label>
+		<input type="checkbox" id="stripCheckbox" class="toggle-checkbox">
+	</div>
+
+	<div class="checkbox-container">
+		<label>Ignore Anchors:</label>
+		<input type="checkbox" id="anchorsCheckbox" class="toggle-checkbox">
+	</div>
+
+	<div class="checkbox-container">
+		<label>Switch to original tab:</label>
+		<input type="checkbox" id="switchToOriginalTabCheckbox" class="toggle-checkbox">
+	</div>
+
+	<div class="checkbox-container">
+		<button id="ignoreWebsiteButton">Loading...</button>
+		<button id="clearWebsitesButton">Clear Excluded Websites</button>
+	</div>
+
 	<script src="popup.js"></script>
 </body>
 <script src="background.js"></script>
