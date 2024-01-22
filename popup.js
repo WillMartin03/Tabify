@@ -33,9 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			stripCheckbox.checked = result.ignoreQueryStrings;
 		}
 	});
-	chrome.storage.sync.get(["anchorsCheckbox"], function (result) {
-		if (result.anchorsCheckbox !== undefined) {
-			anchorsCheckbox.checked = result.anchorsCheckbox;
+	chrome.storage.sync.get(["ignoreAnchorTags"], function (result) {
+		if (result.ignoreAnchorTags !== undefined) {
+			anchorsCheckbox.checked = result.ignoreAnchorTags;
 		}
 	});
 	chrome.storage.sync.get(["switchToOriginalTab"], function (result) {
@@ -81,9 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 	anchorsCheckbox.addEventListener("change", function () {
 		const newValue = this.checked;
-		chrome.storage.sync.set({ "anchorsCheckbox": newValue }, function () {
-			updateCache("anchorsCheckbox", newValue);
-			console.log("[SETTING]: anchorsCheckbox ->", newValue);
+		chrome.storage.sync.set({ "ignoreAnchorTags": newValue }, function () {
+			updateCache("ignoreAnchorTags", newValue);
+			console.log("[SETTING]: ignoreAnchorTags ->", newValue);
 		});
 	});
 	switchToOriginalTabCheckbox.addEventListener("change", function () {

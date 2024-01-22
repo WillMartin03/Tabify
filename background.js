@@ -2,7 +2,6 @@ var tabArr = [];
 
 // Function to check setting, either from cache or by fetching from storage
 function checkSetting(setting, callback) {
-	console.log(setting);
 	// Initialize the cache
 	checkSetting.cache = checkSetting.cache || {};
 
@@ -40,21 +39,23 @@ function initializeExtension() {
 	chrome.tabs.query({}, function (existingTabs) {
 		existingTabs.forEach(function (tab) {
 			tabArr.push(tab);
-			console.log("Add tab", tab.id);
+			console.log("Add tab", tab.id, tab);
 		});
 	});
 
-	// Check for duplicate tabs in tabArr
-	tabArr.forEach(function (tab) {
-		checkForDuplicate(tab);
-	});
+	setTimeout(function () {
+		// Check for duplicate tabs in tabArr
+		tabArr.forEach(function (tab) {
+			checkForDuplicate(tab);
+		});
+	}, 10000); // Wait a couple seconds to allow the browser to start up and load pages before activating the plugin
 
 	// Set initial cache values
-	checkSetting("extensionEnabled", function () { });
-	checkSetting("ignoreQueryStrings", function () { });
-	checkSetting("ignoreAnchorTags", function () { });
-	checkSetting("ignoredWebsites", function () { });
-	checkSetting("switchToOriginalTab", function () { });
+	checkSetting("extensionEnabled", function (extensionEnabled) { });
+	checkSetting("ignoreQueryStrings", function (ignoreQueryStrings) { });
+	checkSetting("ignoreAnchorTags", function (ignoreAnchorTags) { });
+	checkSetting("ignoredWebsites", function (ignoredWebsites) { });
+	checkSetting("switchToOriginalTab", function (switchToOriginalTab) { });
 
 	console.log("Extension Loaded.\ntabArr: ", tabArr);
 
@@ -95,21 +96,25 @@ function checkForDuplicate(tab, preventSwitch = false) {
 	*/
 	// Start by checking for exact matches
 	var isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
+	console.log("isDuplicate:", isDuplicate);
 
 	// If setting "ignoreQueryStrings" is true, isDuplicate checks any url that matches the current url without considering query strings
 	checkSetting("ignoreQueryStrings", function (ignoreQueryStrings) {
-		if (ignoreQueryStrings)
+		if (ignoreQueryStrings) {
 			isDuplicate = tabArr.some(t => t.url.split("?")[0] === tab.url.split("?")[0] && t !== tab);
+			console.log("isDuplicate:", isDuplicate);
+		}
 	});
 
 	// If a duplicate is already found, we don't need to check this setting.
 	if (!isDuplicate) {
 		checkSetting("ignoreAnchorTags", function (ignoreAnchorTags) {
-			if (ignoreAnchorTags)
+			if (ignoreAnchorTags) {
 				isDuplicate = tabArr.some(t => t.url.split("#")[0] === tab.url.split("#")[0] && t !== tab);
+				console.log("isDuplicate:", isDuplicate);
+			}
 		});
 	}
-
 	// pendingDuplicate checks any url that matches the currently pending url
 	const pendingDuplicate = tab.pendingUrl !== undefined ? tabArr.some(t => t.url === tab.pendingUrl && t !== tab) : false;
 

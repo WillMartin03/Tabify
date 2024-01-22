@@ -5,9 +5,9 @@
 	"author": "William Martin",
 	"version": "1.2.1",
 	"icons": {
-		"16": "/assets/images/icon16.png",
-		"48": "/assets/images/icon48.png",
-		"128": "/assets/images/icon128.png"
+		"16": "/assets/images/blue_blank_16.png",
+		"48": "/assets/images/blue_blank_48.png",
+		"128": "/assets/images/blue_blank_128.png"
 	},
 	"action": {
 		"default_popup": "popup.html",
