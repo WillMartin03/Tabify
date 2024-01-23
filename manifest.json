@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Tabify",
-	"description": "Checks site URL's of websites to make sure you don't open the same link twice. When the same link is opened, close the duplicate tab and select the old tab instead.",
+	"description": "Checks site URLs of websites to prevent opening the same link twice. Closes duplicate tabs and selects the old tab instead.",
 	"author": "William Martin",
 	"version": "1.3.0",
 	"icons": {
