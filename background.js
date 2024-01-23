@@ -91,8 +91,8 @@ function checkForDuplicate(tab, preventSwitch = false) {
 	}
 
 	/*
-		boolean var isDuplicate = if any tab url matches current tab url
-		boolean const pendingDuplicate = if any tab url matches current tab pendingUrl
+		boolean var isDuplicate -> if any tab url matches current tab url
+		boolean const pendingURL -> if any tab url matches current tab pendingUrl
 	*/
 	// Start by checking for exact matches
 	var isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
@@ -115,10 +115,11 @@ function checkForDuplicate(tab, preventSwitch = false) {
 			}
 		});
 	}
-	// pendingDuplicate checks any url that matches the currently pending url
-	const pendingDuplicate = tab.pendingUrl !== undefined ? tabArr.some(t => t.url === tab.pendingUrl && t !== tab) : false;
 
-	if (isDuplicate || pendingDuplicate) {
+	// pendingURL checks any url that matches the currently pending url
+	const pendingURL = tab.pendingUrl !== undefined ? tabArr.some(t => t.url === tab.pendingUrl && t !== tab) : false;
+
+	if (isDuplicate || pendingURL) {
 		chrome.tabs.remove(tab.id, function () {
 			console.log("Closed duplicate tab:", tab.id, tab);
 			if (preventSwitch)
