@@ -1,5 +1,18 @@
 var tabArr = [];
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request.command === 'tabArr') {
+		console.log('tabArr contents:', tabArr);
+	}
+	if (request.command === 'tabCheck') {
+		console.log('Checking for duplicates in tabArr:', tabArr);
+		tabArr.forEach(tab => {
+			checkForDuplicate(tab, true);
+		});
+	}
+});
+
+
 // Function to check setting, either from cache or by fetching from storage
 function checkSetting(setting, callback) {
 	// Initialize the cache
