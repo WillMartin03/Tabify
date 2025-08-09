@@ -3,7 +3,7 @@
 	"name": "Tabify",
 	"description": "Checks site URLs of websites to prevent opening the same link twice. Closes duplicate tabs and selects the old tab instead.",
 	"author": "William Martin",
-	"version": "1.4.0",
+	"version": "2.0.0",
 	"icons": {
 		"16": "/assets/images/blue_blank_16.png",
 		"48": "/assets/images/blue_blank_48.png",

@@ -55,9 +55,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			const index = ignoredWebsites.indexOf(currentUrl);
 
 			if (index === -1) {
-				ignoreWebsiteButton.innerText = "Exclude Website";
+				ignoreWebsiteButton.innerText = "Ignore Website";
 			} else {
-				ignoreWebsiteButton.innerText = "Include Website";
+				ignoreWebsiteButton.innerText = "Unignore Website";
 			}
 		});
 	});
@@ -77,6 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		chrome.storage.sync.set({ "ignoreQueryStrings": newValue }, function () {
 			updateCache("ignoreQueryStrings", newValue);
 			console.log("[SETTING]: ignoreQueryStrings ->", newValue);
+			if (newValue === true)
+				checkAllDuplicates();
 		});
 	});
 	anchorsCheckbox.addEventListener("change", function () {
@@ -84,6 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		chrome.storage.sync.set({ "ignoreAnchorTags": newValue }, function () {
 			updateCache("ignoreAnchorTags", newValue);
 			console.log("[SETTING]: ignoreAnchorTags ->", newValue);
+			if (newValue === true)
+				checkAllDuplicates();
 		});
 	});
 	switchToOriginalTabCheckbox.addEventListener("change", function () {
@@ -102,10 +106,10 @@ document.addEventListener("DOMContentLoaded", function () {
 				const index = ignoredWebsites.indexOf(currentUrl);
 				if (index === -1) {
 					ignoredWebsites.push(currentUrl);
-					button.innerText = "Include Website";
+					button.innerText = "Unignore Website";
 				} else {
 					ignoredWebsites.splice(index, 1);
-					button.innerText = "Exclude Website";
+					button.innerText = "Ignore Website";
 				}
 				chrome.storage.sync.set({ "ignoredWebsites": ignoredWebsites }, function () {
 					updateCache("ignoreWebsite", ignoredWebsites);
@@ -119,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			updateCache("ignoreWebsite", []);
 			console.log("ignoredWebsites ->\n", []);
 		});
-		ignoreWebsiteButton.innerText = "Exclude Website";
+		ignoreWebsiteButton.innerText = "Ignore Website";
 		clearWebsitesButton.innerText = "Cleared!";
 		clearWebsitesButton.style.backgroundColor = "#ed3f54";
 		setTimeout(function () {

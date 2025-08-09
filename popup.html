@@ -10,31 +10,43 @@
 
 <body class="popup-container" style="text-align: center;">
 
-	<h1><u><span style="font-family: Pacifico, cursive, monospace;">Tabify</span></u></h1>
+	<h1>
+		<u>
+			<span
+				style="font-family: Pacifico, cursive, monospace;">Tabify</span>
+		</u>
+	</h1>
 
 	<div class="checkbox-container">
-		<label>Extension Enabled:</label>
-		<input type="checkbox" id="extensionEnableCheckbox" class="toggle-checkbox">
+		<label><strong>Extension Enabled:</strong></label>
+		<input type="checkbox" id="extensionEnableCheckbox"
+			class="toggle-checkbox">
 	</div>
 
 	<div class="checkbox-container">
-		<label>Ignore Query Parameters:</label>
+		<label><strong>Ignore Query Parameters:</strong></label>
 		<input type="checkbox" id="stripCheckbox" class="toggle-checkbox">
 	</div>
 
 	<div class="checkbox-container">
-		<label>Ignore Anchors:</label>
+		<label><strong>Ignore Anchors:</strong></label>
 		<input type="checkbox" id="anchorsCheckbox" class="toggle-checkbox">
 	</div>
 
 	<div class="checkbox-container">
-		<label>Switch to original tab:</label>
-		<input type="checkbox" id="switchToOriginalTabCheckbox" class="toggle-checkbox">
+		<label><strong>Switch to original tab:</strong></label>
+		<input type="checkbox" id="switchToOriginalTabCheckbox"
+			class="toggle-checkbox">
 	</div>
 
 	<div class="checkbox-container">
 		<button id="ignoreWebsiteButton">Loading...</button>
 		<button id="clearWebsitesButton">Clear Excluded Websites</button>
+	</div>
+
+	<div>
+		<p>NOTE: Changing settings will check all tabs with new settings
+			<strong>immediately.</strong></p>
 	</div>
 
 	<script src="popup.js"></script>
