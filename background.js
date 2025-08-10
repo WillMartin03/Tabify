@@ -2,10 +2,20 @@ var tabArr = [];
 
 var tabCheck = function () {
 	console.log("Running tabCheck: checking all duplicates...");
-	tabArr.forEach(function (tab) {
-		checkForDuplicate(tab, true);
-	});
+	checkAllDuplicates();
 };
+
+async function checkAllDuplicates() {
+	console.log("Running sequential duplicate check...");
+
+	//const currentTabs = await chrome.tabs.query({});
+	//tabArr = currentTabs;
+
+	//for (const tab of currentTabs) {
+	for (const tab of tabArr) {
+		await checkForDuplicate(tab, true);
+	}
+}
 
 function getSetting(setting) {
 	return new Promise(resolve => {
@@ -23,9 +33,7 @@ function getSetting(setting) {
 // LISTENER FOR COMMUNICATION WITH `popup.js`
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	if (request.action === "checkAllDuplicates") {
-		tabArr.forEach(function (tab) {
-			checkForDuplicate(tab, true);
-		});
+		checkAllDuplicates();
 	}
 });
 
@@ -40,9 +48,7 @@ function initializeExtension() {
 
 	setTimeout(function () {
 		// Check for duplicate tabs in tabArr
-		tabArr.forEach(function (tab) {
-			checkForDuplicate(tab);
-		});
+		checkAllDuplicates();
 	}, 10000); // Wait a couple seconds to allow the browser to start up and load pages before activating the plugin
 
 	console.log("Extension Loaded.\ntabArr: ", tabArr);
@@ -89,12 +95,14 @@ async function checkForDuplicate(tab, preventSwitch = false) {
 
 	if (!isDuplicate && ignoreQueryStrings) {
 		isDuplicate = tabArr.some(t => t.url.split("?")[0] === tab.url.split("?")[0] && t !== tab);
-		console.log("Query-stripped isDuplicate:", isDuplicate);
+		tabName = tab.url.split("?")[0];
+		console.log("Query-stripped isDuplicate:", tabName, isDuplicate);
 	}
 
 	if (!isDuplicate && ignoreAnchorTags) {
 		isDuplicate = tabArr.some(t => t.url.split("#")[0] === tab.url.split("#")[0] && t !== tab);
-		console.log("Anchor-stripped isDuplicate:", isDuplicate);
+		tabName = tab.url.split("#")[0];
+		console.log("Anchor-stripped isDuplicate:", tabName, isDuplicate);
 	}
 
 	const pendingURL = tab.pendingUrl !== undefined
