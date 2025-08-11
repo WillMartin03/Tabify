@@ -1,3 +1,4 @@
+let runningCheck = false;
 var tabArr = [];
 
 var tabCheck = function () {
@@ -6,6 +7,8 @@ var tabCheck = function () {
 };
 
 async function checkAllDuplicates() {
+	if (runningCheck) return;
+	runningCheck = true;
 	console.log("Running sequential duplicate check...");
 
 	//const currentTabs = await chrome.tabs.query({});
@@ -15,6 +18,7 @@ async function checkAllDuplicates() {
 	for (const tab of tabArr) {
 		await checkForDuplicate(tab, true);
 	}
+	runningCheck = false;
 }
 
 function getSetting(setting) {
@@ -56,17 +60,21 @@ function initializeExtension() {
 }
 
 async function checkForDuplicate(tab, preventSwitch = false) {
+	if (runningCheck) return;
+	runningCheck = true;
 	console.log("Checking for duplicate tab:", tab.id, tab);
 
 	// Skip NTP tabs
 	if (tab.url.includes("://newtab")) {
 		console.log(tab, "Cannot remove NTP tab.");
+		runningCheck = false;
 		return;
 	}
 
 	// Skip Bing search tabs
 	if (tab.url.includes("search?") && tab.url.includes("bing.com")) {
 		console.log(tab, "Ignoring bing search tab.");
+		runningCheck = false;
 		return;
 	}
 
@@ -86,6 +94,7 @@ async function checkForDuplicate(tab, preventSwitch = false) {
 	// Check if tab is ignored
 	if (Array.isArray(ignoredWebsites) && ignoredWebsites.includes(tab.url)) {
 		console.log(tab.url, "is ignored, not checking for duplicates.");
+		runningCheck = false;
 		return;
 	}
 
@@ -122,6 +131,7 @@ async function checkForDuplicate(tab, preventSwitch = false) {
 			}
 		});
 	}
+	runningCheck = false;
 }
 
 chrome.runtime.onInstalled.addListener((reason) => {
