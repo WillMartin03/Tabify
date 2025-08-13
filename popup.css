@@ -12,14 +12,14 @@ html, body {
 
 .popup-container {
 	width: 350px;
-	background-color: #212121;
+	background-color: #212226;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .checkbox-container {
 	margin-bottom: 8px;
 	border: 1px solid #111;
-	background-color: #272727;
+	background-color: #1c1c1e;
 	border-radius: 8px;
 	padding: 10px 12px;
 }
@@ -92,4 +92,27 @@ button {
 .button:active,
 .button:checked::before {
 	background-color: #ed3f54;
+}
+.rainbow-text {
+	font-size: 36px;
+	font-family: Arial, Helvetica, sans-serif;
+	background: linear-gradient(90deg,
+			#ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff,
+			#ff0000, #ff7f00, #ffff00);
+	background-size: 600% auto;
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+	-webkit-text-fill-color: transparent;
+	animation: rainbowShift 6s linear infinite;
+}
+
+@keyframes rainbowShift {
+	0% {
+		background-position: 0% 50%;
+	}
+
+	100% {
+		background-position: 100% 50%;
+	}
 }

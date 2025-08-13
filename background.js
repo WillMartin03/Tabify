@@ -1,10 +1,15 @@
 let runningCheck = false;
 var tabArr = [];
+var ignoredWebsites = [];
 
 var tabCheck = function () {
 	console.log("Running tabCheck: checking all duplicates...");
 	checkAllDuplicates();
 };
+
+var tabsIgnored = function () {
+	console.log("Ignored Websites:", ignoredWebsites);
+}
 
 async function checkAllDuplicates() {
 	if (runningCheck) return;
