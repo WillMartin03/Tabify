@@ -36,8 +36,18 @@ function getSetting(setting) {
 
 // LISTENER FOR COMMUNICATION WITH `popup.js`
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	if (request.action === "checkAllDuplicates") {
+	const act = request.action;
+	if (act === "checkAllDuplicates") {
 		checkAllDuplicates();
+	}
+	if (act === "updateCache" && request.setting === "extensionEnabled") {
+		const iconPath = request.value
+			? "assets/images/blue_happy_128.png"
+			: "assets/images/disabled_sad_128.png";
+
+		chrome.action.setIcon({ path: iconPath }, () => {
+			console.log(`[ICON]: Updated to ${iconPath}`);
+		});
 	}
 });
 
