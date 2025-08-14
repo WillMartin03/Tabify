@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				ignoreWebsiteButton.innerText = "Ignore Website";
 			} else {
 				ignoreWebsiteButton.innerText = "Unignore Website";
+				ignoreWebsiteButton.style.backgroundColor = "#ed3f54";
 			}
 		});
 	});
@@ -107,9 +108,11 @@ document.addEventListener("DOMContentLoaded", function () {
 				if (index === -1) {
 					ignoredWebsites.push(currentUrl);
 					button.innerText = "Unignore Website";
+					button.style.backgroundColor = "#ed3f54";
 				} else {
 					ignoredWebsites.splice(index, 1);
 					button.innerText = "Ignore Website";
+					button.style.backgroundColor = "";
 				}
 				chrome.storage.sync.set({ "ignoredWebsites": ignoredWebsites }, function () {
 					updateCache("ignoreWebsite", ignoredWebsites);
@@ -124,6 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			console.log("ignoredWebsites ->\n", []);
 		});
 		ignoreWebsiteButton.innerText = "Ignore Website";
+		ignoreWebsiteButton.style.backgroundColor = "";
 		clearWebsitesButton.innerText = "Cleared!";
 		clearWebsitesButton.style.backgroundColor = "#ed3f54";
 		setTimeout(function () {

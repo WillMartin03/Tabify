@@ -113,39 +113,45 @@ async function checkForDuplicate(tab, preventSwitch = false) {
 		return;
 	}
 
-	// Check for duplicates
-	let isDuplicate = tabArr.some(t => t.url === tab.url && t !== tab);
-	console.log("isDuplicate:", isDuplicate);
+	// Check for exact URL duplicates
+	let isDuplicate = tabArr.some(t => t.url === tab.url && t.id !== tab.id);
+	console.log("Exact match isDuplicate:", isDuplicate);
 
+	// Check for query-stripped duplicates
 	if (!isDuplicate && ignoreQueryStrings) {
-		isDuplicate = tabArr.some(t => t.url.split("?")[0] === tab.url.split("?")[0] && t !== tab);
-		tabName = tab.url.split("?")[0];
-		console.log("Query-stripped isDuplicate:", tabName, isDuplicate);
+		const baseUrl = tab.url.split("?")[0];
+		isDuplicate = tabArr.some(t => t.url.split("?")[0] === baseUrl && t.id !== tab.id);
+		console.log("Query-stripped isDuplicate:", baseUrl, isDuplicate);
 	}
 
+	// Check for anchor-stripped duplicates
 	if (!isDuplicate && ignoreAnchorTags) {
-		isDuplicate = tabArr.some(t => t.url.split("#")[0] === tab.url.split("#")[0] && t !== tab);
-		tabName = tab.url.split("#")[0];
-		console.log("Anchor-stripped isDuplicate:", tabName, isDuplicate);
+		const baseUrl = tab.url.split("#")[0];
+		isDuplicate = tabArr.some(t => t.url.split("#")[0] === baseUrl && t.id !== tab.id);
+		console.log("Anchor-stripped isDuplicate:", baseUrl, isDuplicate);
 	}
 
+	// Check for pending URL duplicates
 	const pendingURL = tab.pendingUrl !== undefined
-		? tabArr.some(t => t.url === tab.pendingUrl && t !== tab)
+		? tabArr.some(t => t.url === tab.pendingUrl && t.id !== tab.id)
 		: false;
 
 	if (isDuplicate || pendingURL) {
 		chrome.tabs.remove(tab.id, function () {
-			console.log("Closed duplicate tab:", tab.id, tab);
-			if (preventSwitch) return;
+			const originalTab = tabArr.find(t => t.url === tab.url && t.id !== tab.id);
 
-			const originalTab = tabArr.find(t => t.url === tab.url && t !== tab);
-			if (switchToOriginalTab && originalTab) {
+			if (!originalTab || preventSwitch) return;
+
+			if (switchToOriginalTab) {
 				chrome.tabs.update(originalTab.id, { active: true }, function (updatedTab) {
 					console.log("Setting Active Tab:", updatedTab.id, updatedTab);
 				});
 			}
+
+			console.log("Closed duplicate tab:", tab.id, tab, "Dup of:", originalTab?.id, originalTab);
 		});
 	}
+
 	runningCheck = false;
 }
 
