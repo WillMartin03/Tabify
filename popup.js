@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	const switchToOriginalTabCheckbox = document.getElementById("switchToOriginalTabCheckbox");
 	const ignoreWebsiteButton = document.getElementById("ignoreWebsiteButton");
 	const clearWebsitesButton = document.getElementById("clearWebsitesButton");
+	const manageWebsitesButton = document.getElementById("manageWebsitesButton");
 
 	// Load the saved settings when the popup is opened
 	chrome.storage.sync.get(["extensionEnabled"], function (result) {
@@ -134,5 +135,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			clearWebsitesButton.innerText = "Clear Excluded Websites";
 			clearWebsitesButton.style.backgroundColor = "";
 		}, 2000);
+	});
+	manageWebsitesButton.addEventListener("click", function () {
+		chrome.tabs.create({ url: chrome.runtime.getURL("manage.html") });
 	});
 });

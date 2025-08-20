@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Tabify - Manage Excluded Websites</title>
+	<style>
+		:root {
+			color-scheme: light dark;
+		}
+
+		body {
+			font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+			margin: 24px;
+		}
+
+		h1 {
+			margin: 0 0 16px;
+			font-size: 1.35rem;
+		}
+
+		h1.text-center {
+			text-align: center;
+			font-size: clamp(2rem, 3.5vw, 2.6rem);
+			line-height: 1.25;
+			margin: 0 0 20px;
+			font-weight: 700;
+		}
+
+		.toolbar {
+			display: flex;
+			gap: 8px;
+			align-items: center;
+			margin-bottom: 12px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 8px 12px;
+			border-radius: 8px;
+			border: 1px solid #999;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		.btn.primary {
+			border-color: #3b82f6;
+			color: #3b82f6;
+		}
+
+		.btn.danger {
+			border-color: #ed3f54;
+			color: #ed3f54;
+		}
+
+		.muted {
+			opacity: .7;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		thead th {
+			text-align: left;
+			font-weight: 600;
+			background: rgba(0, 0, 0, .05);
+			padding: 10px;
+		}
+
+		tbody td {
+			padding: 10px;
+			border-top: 1px solid #e5e5e5;
+			vertical-align: middle;
+		}
+
+		.title {
+			white-space: nowrap;
+		}
+
+		.url {
+			word-break: break-all;
+		}
+
+		.empty {
+			padding: 16px;
+			text-align: center;
+			opacity: .7;
+		}
+
+		.status {
+			margin-left: auto;
+			opacity: .8;
+		}
+	</style>
+</head>
+
+<body>
+	<h1 class="text-center">Tabify - Excluded Websites</h1>
+
+	<div class="toolbar">
+		<button id="addBtn" class="btn primary">Ignore Website</button>
+		<button id="clearAllBtn" class="btn danger">Clear All</button>
+		<span id="countLabel" class="status">Loading…</span>
+	</div>
+
+	<table aria-label="Excluded websites">
+		<thead>
+			<tr>
+				<th style="width:56px">#</th>
+				<th style="width:220px">Title</th>
+				<th>URL</th>
+				<th style="width:160px">Actions</th>
+			</tr>
+		</thead>
+		<tbody id="rows">
+			<tr>
+				<td colspan="4" class="empty">Loading…</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script src="manage.js" defer></script>
+</body>
+
+</html>
