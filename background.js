@@ -155,6 +155,8 @@ async function checkForDuplicate(tab, preventSwitch = false) {
 	runningCheck = false;
 }
 
+const MENU_ID = "tabify-toggle-ignore";
+
 chrome.runtime.onInstalled.addListener((reason) => {
 	// Create welcome page
 	if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
@@ -162,6 +164,13 @@ chrome.runtime.onInstalled.addListener((reason) => {
 			url: "welcome.html"
 		});
 	}
+
+	chrome.contextMenus.create({
+		id: MENU_ID,
+		title: "Ignore this site in Tabify",
+		contexts: ["page"]
+	});
+
 	initializeExtension();
 });
 
@@ -209,4 +218,102 @@ chrome.tabs.onRemoved.addListener(function (tabID) {
 	catch (error) {
 		console.log("ERROR:", error);
 	}
+});
+
+// Canonicalize a page URL I.E. https://www.example.com/
+function canonicalize(raw) {
+	if (!raw) return null;
+	try {
+		const u = new URL(raw);
+		if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+
+		const isLocal = h => h === "localhost" || h.endsWith(".localhost");
+		const isIp = h => /^[0-9.]+$/.test(h) || h.includes(":");
+
+		let host = u.hostname.toLowerCase();
+		if (!host.includes(".") && !isLocal(host) && !isIp(host)) host += ".com";
+
+		const dotCount = (host.match(/\./g) || []).length;
+		if (!host.startsWith("www.") && dotCount === 1 && !isLocal(host) && !isIp(host)) host = "www." + host;
+
+		const scheme = (isLocal(host) || isIp(host)) ? "http" : "https";
+		return `${scheme}://${host}/`;
+	} catch {
+		return null;
+	}
+}
+
+function getIgnored() {
+	return new Promise(resolve => {
+		chrome.storage.sync.get(["ignoredWebsites"], res =>
+			resolve(Array.isArray(res.ignoredWebsites) ? res.ignoredWebsites : [])
+		);
+	});
+}
+
+function setIgnored(next) {
+	return new Promise(resolve => {
+		chrome.storage.sync.set({ ignoredWebsites: next }, () => {
+			// Optional broadcast, but silences "Receiving end does not exist"
+			try {
+				chrome.runtime.sendMessage(
+					{ action: "updateCache", setting: "ignoreWebsite", value: next },
+					() => void chrome.runtime.lastError // read lastError to suppress warning
+				);
+			} catch (_) { /* ignore */ }
+			resolve();
+		});
+	});
+}
+
+// Refresh the menu title for a given URL
+async function refreshMenuTitleForUrl(rawUrl) {
+	const site = canonicalize(rawUrl);
+	if (!site) {
+		chrome.contextMenus.update(MENU_ID, { title: "Ignore this site in Tabify" });
+		try { chrome.contextMenus.refresh(); } catch { } // Edge may not have refresh
+		return;
+	}
+	const list = await getIgnored();
+	const isIgnored = list.includes(site);
+	chrome.contextMenus.update(MENU_ID, {
+		title: isIgnored ? "Unignore this site in Tabify" : "Ignore this site in Tabify"
+	});
+	try { chrome.contextMenus.refresh(); } catch { }
+}
+
+// Prefer onShown when available; otherwise fall back to tab events
+if (chrome.contextMenus && chrome.contextMenus.onShown) {
+	chrome.contextMenus.onShown.addListener((info, tab) => {
+		const url = info.pageUrl || tab?.url || "";
+		refreshMenuTitleForUrl(url);
+	});
+} else {
+	// Edge fallback
+	chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+		try {
+			const tab = await chrome.tabs.get(tabId);
+			refreshMenuTitleForUrl(tab.url || "");
+		} catch { }
+	});
+	chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+		if (changeInfo.status === "complete" || changeInfo.url) {
+			refreshMenuTitleForUrl((tab && (tab.url || changeInfo.url)) || "");
+		}
+	});
+}
+
+// Toggle on click
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+	if (info.menuItemId !== MENU_ID) return;
+
+	const url = info.pageUrl || tab?.url || "";
+	const site = canonicalize(url);
+	if (!site) return;
+
+	const list = await getIgnored();
+	const exists = list.includes(site);
+	const next = exists ? list.filter(u => u !== site) : Array.from(new Set([...list, site]));
+	await setIgnored(next);
+	refreshMenuTitleForUrl(url);
 });
