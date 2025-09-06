@@ -4,29 +4,34 @@ A quick extension to ensure you don't open duplicate tabs.
 
 ## Installation
 
-(Edge)
+Microsoft Edge
 
-1. Navigate to the Edge extension store
-2. Search for Tabify, click the extension, and install.
+1. Navigate to the [Tabify Edge extension page](https://microsoftedge.microsoft.com/addons/detail/tabify/checgibapfbeoofmpjgnkdpceeglbkel).
+2. Click "Get" and install the extension.
 
-(Manual)
+Chrome
+
+1. Navigate to the [Tabify Chrome extension page](https://chromewebstore.google.com/detail/tabify/agkgdhemdccakhbdgmgdddnbngppoico).
+2. Click "Get" and install the extension.
+
+Manual Installation
 
 1. Clone the repository or download the ZIP file.
 2. Open Chrome and go to `edge://extensions/`.
 3. Enable "Developer mode" in the top right corner.
 4. Click "Load unpacked" and select the extension folder.
 
-Please note that if you install an extension in developer mode, your browser will frequently ask you to remove it or disable developer mode, which becomes quite exhausting very quickly.
-
 ## Usage
 
 -   Tabify automatically manages your tabs to prevent duplicate openings.
 -   No additional configuration is needed; simply enjoy a cleaner browser experience.
+-   You may change settings by clicking on the extension icon at any time.
 
 ## Features
 
 -   Automatically removes duplicate tabs upon creation.
 -   Helps keep your browser clutter-free and organized.
+-   Multiple settings for tab removal, including a built in "ignored websites" manager.
 
 ## Development
 
