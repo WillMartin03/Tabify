@@ -270,16 +270,26 @@ function setIgnored(next) {
 async function refreshMenuTitleForUrl(rawUrl) {
 	const site = canonicalize(rawUrl);
 	if (!site) {
-		chrome.contextMenus.update(MENU_ID, { title: "Ignore this site in Tabify" });
-		try { chrome.contextMenus.refresh(); } catch { } // Edge may not have refresh
+		try {
+			chrome.contextMenus.update(MENU_ID, { title: "Ignore this site in Tabify" });
+			try { chrome.contextMenus.refresh(); } catch { } // Edge may not have refresh
+		} catch (error) {
+			console.warn("Failed to update context menu:", error);
+		}
 		return;
 	}
+
 	const list = await getIgnored();
 	const isIgnored = list.includes(site);
-	chrome.contextMenus.update(MENU_ID, {
-		title: isIgnored ? "Unignore this site in Tabify" : "Ignore this site in Tabify"
-	});
-	try { chrome.contextMenus.refresh(); } catch { }
+
+	try {
+		chrome.contextMenus.update(MENU_ID, {
+			title: isIgnored ? "Unignore this site in Tabify" : "Ignore this site in Tabify"
+		});
+		try { chrome.contextMenus.refresh(); } catch { } // Edge may not have refresh
+	} catch (error) {
+		console.warn("Failed to update context menu:", error);
+	}
 }
 
 // Prefer onShown when available; otherwise fall back to tab events
